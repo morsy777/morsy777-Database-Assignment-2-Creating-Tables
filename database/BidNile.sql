@@ -227,3 +227,48 @@ CREATE TABLE Auction
 );
 GO
 
+CREATE TABLE Bid
+(
+    BidId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    AuctionId INT NOT NULL,
+    MemberId UNIQUEIDENTIFIER NOT NULL,
+    Amount DECIMAL(12,2) NOT NULL,
+    PlacedAt DATETIME2(3) NOT NULL,
+    IpAddress VARCHAR(45) NOT NULL,
+
+    CONSTRAINT FK_Bid_Auction
+        FOREIGN KEY (AuctionId) REFERENCES Auction(AuctionId),
+
+    CONSTRAINT FK_Bid_Member
+        FOREIGN KEY (MemberId) REFERENCES Member(MemberId),
+
+    CONSTRAINT CK_Bid_Amount
+        CHECK (Amount > 0),
+
+    CONSTRAINT UQ_Bid_Auction_Amount
+        UNIQUE (AuctionId, Amount)
+);
+GO
+
+CREATE TABLE AuctionFollower
+(
+    MemberId UNIQUEIDENTIFIER NOT NULL,
+    AuctionId INT NOT NULL,
+    FollowedAt DATETIME2(3) NOT NULL,
+
+    CONSTRAINT PK_AuctionFollower
+        PRIMARY KEY (MemberId, AuctionId),
+
+    CONSTRAINT FK_AuctionFollower_Member
+        FOREIGN KEY (MemberId) REFERENCES Member(MemberId),
+
+    CONSTRAINT FK_AuctionFollower_Auction
+        FOREIGN KEY (AuctionId) REFERENCES Auction(AuctionId)
+);
+GO
+
+-- I used composite FK, because the manager must be an employee in the same warehouse 
+ALTER TABLE Warehouse
+ADD CONSTRAINT FK_Warehouse_ManagerSameWarehouse
+    FOREIGN KEY (ManagerEmployeeId, WarehouseId) REFERENCES Employee(EmployeeId, WarehouseId);
+GO
