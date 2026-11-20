@@ -36,7 +36,7 @@
 - Because both tables reference each other using Foreign Keys. When creating the first table, the second table does not exist yet, so we create the first table then use ALTER TABLE to add the FK.
 
 ### 5- The order you filled the tables in, and why?
-- I got a permission from Eng. Abdulrahman to skip filling the tables using edit top 200 rows, because I had llimited time.
+- I got permission from Eng. Abdulrahman to skip filling the tables using Edit Top 200 Rows because I had already studied SQL INSERT statements at the faculty, and I had a limited time to finish the assignment. I also wanted to focus on the more important parts of the assignment, such as creating the tables and relationships.
 
 - However, if I had to fill the tables, I would start with the tables that do not have any FKs, then move to the tables that have FKs, and finally fill the junction tables.
 
