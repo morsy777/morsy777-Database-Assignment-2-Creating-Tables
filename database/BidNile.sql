@@ -272,3 +272,175 @@ ALTER TABLE Warehouse
 ADD CONSTRAINT FK_Warehouse_ManagerSameWarehouse
     FOREIGN KEY (ManagerEmployeeId, WarehouseId) REFERENCES Employee(EmployeeId, WarehouseId);
 GO
+
+-- 3.2
+ALTER TABLE Member
+ADD AppLanguage VARCHAR(2) NOT NULL
+	CONSTRAINT DF_Member_AppLanguage DEFAULT 'ar';
+GO
+
+-- 3.3
+ALTER TABLE Item
+ADD IsFeatured BIT NOT NULL
+	CONSTRAINT DF_Item_IsFeatured DEFAULT 0;
+GO
+
+-- 3.4
+EXEC sp_rename 
+	'[dbo].Bid.IpAddress',
+	'DeviceIp';
+GO
+
+ALTER TABLE Warehouse
+DROP CONSTRAINT CK_Warehouse_Capacity;
+GO
+
+EXEC sp_rename 
+	'[dbo].Warehouse.Capacity',
+	'MaxItems';
+GO
+
+ALTER TABLE Warehouse
+ADD CONSTRAINT CK_Warehouse_MaxItems 
+CHECK (MaxItems > 0);
+GO
+
+-- 3.5
+ALTER TABLE Member
+ALTER COLUMN FullName NVARCHAR(150) NOT NULL;
+GO
+
+-- 3.6
+ALTER TABLE Warehouse
+DROP CONSTRAINT CK_Warehouse_MaxItems;
+GO
+
+ALTER TABLE Warehouse
+ALTER COLUMN MaxItems SMALLINT NOT NULL;
+GO
+
+ALTER TABLE Warehouse
+ADD CONSTRAINT CK_Warehouse_MaxItems
+CHECK (MaxItems > 0);
+GO
+
+-- 3.7
+ALTER TABLE Category
+DROP CONSTRAINT CK_Category_Commission;
+GO
+
+ALTER TABLE Category
+ADD CONSTRAINT CK_Category_Commission
+CHECK (CommissionPercentage <= 25);
+GO
+
+-- 3.8
+ALTER TABLE Auction
+DROP CONSTRAINT DF__Auction__Status__70DDC3D8;
+GO
+
+ALTER TABLE Auction
+DROP CONSTRAINT CK_Auction_Status;
+GO
+
+ALTER TABLE Auction
+ALTER COLUMN Status VARCHAR(20) NOT NULL;
+GO
+
+ALTER TABLE Auction
+ADD CONSTRAINT DF__Auction__Status 
+DEFAULT ('PendingReview') FOR Status;
+GO
+
+ALTER TABLE Auction
+ADD CONSTRAINT CK_Auction_Status 
+CHECK (Status IN ('Draft', 'PendingReview', 'Live', 'Ended', 'Cancelled'));
+GO
+
+-- 3.9
+ALTER TABLE Auction
+ADD BuyNowPrice DECIMAL(12,2) NULL;
+GO
+
+-- I used with check to ensure the existng rows (old rows) satisfy the constraint.
+ALTER TABLE Auction WITH CHECK
+ADD CONSTRAINT CK_Auction_BuyNowPrice
+CHECK (BuyNowPrice > StartingPrice);
+GO
+
+-- 3.10
+ALTER TABLE Member
+ADD CONSTRAINT UQ_Members_Mobile UNIQUE (PhoneNo);
+GO
+
+-- 3.11
+ALTER TABLE Member
+ADD VerifiedAt DATETIME2 NULL;
+GO
+
+ALTER TABLE Member
+DROP CONSTRAINT DF__Member__IsVerifi__412EB0B6;
+GO
+
+ALTER TABLE Member
+DROP COLUMN IsVerified;
+GO
+
+-- 3.12
+CREATE SCHEMA Marketing;
+GO
+
+ALTER SCHEMA Marketing 
+TRANSFER dbo.AuctionFollower;
+GO
+
+-- Task 1.3 Schemas
+--	I expect that u will give us the schemas name like Marketing schema.
+CREATE SCHEMA Core;
+GO
+
+ALTER SCHEMA Core 
+TRANSFER dbo.Country;
+GO
+ALTER SCHEMA Core 
+TRANSFER dbo.City;
+GO
+ALTER SCHEMA Core 
+TRANSFER dbo.Member;
+GO
+ALTER SCHEMA Core 
+TRANSFER dbo.Wallet;
+GO
+
+
+CREATE SCHEMA Operations;
+GO
+
+ALTER SCHEMA Operations 
+TRANSFER dbo.Warehouse;
+GO
+ALTER SCHEMA Operations 
+TRANSFER dbo.Employee;
+GO
+ALTER SCHEMA Operations 
+TRANSFER dbo.Item;
+GO
+ALTER SCHEMA Operations 
+TRANSFER dbo.ItemPhotos;
+GO
+
+
+CREATE SCHEMA Auctions;
+GO
+
+ALTER SCHEMA Auctions 
+TRANSFER dbo.Category;
+GO
+ALTER SCHEMA Auctions 
+TRANSFER dbo.Auction;
+GO
+ALTER SCHEMA Auctions 
+TRANSFER dbo.Bid;
+GO
+
+-- Marketing schema already transferred in Task 3 (Marketing.AuctionFollower)
